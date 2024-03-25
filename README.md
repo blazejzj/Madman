@@ -10,30 +10,32 @@ Unlock Abilities: Gain unique abilities and power-ups that make your journey eas
 Progress and Power Up: Defeat enemies to become stronger and tackle tougher challenges.
 Extra Fun with Cheats: Experiment with different modes, like god mode or level skips, to mix things up.
 
-### How to Play
+## How to Play
 
 Move: Navigate through dungeons using W, A, S, D for direction.
 Attack: Press SPACE to launch attacks against your foes.
 Activate Abilities: Use keys 1, 2, 3... to unleash your collected powers.
 
-### Upcoming Features
+## Upcoming Features
 
 <ul>
     <li>More themed levels for endless exploration. (Textures)</li>
+    <li>New challenging enemies and epic bosses. (More variety of enemies)</li>
+    <li>Additional abilities and upgrades to boost your power.</li>
+    <li>Upon death; do something.</li>
+    <li>++</li>
 </ul>
 
-New challenging enemies and epic bosses. (More variety of enemies)
-Additional abilities and upgrades to boost your power.
-Upon death; do something.
-++
 
 
-### Current Known Bugs
+## Current Known Bugs
 
-    The abilities are disabled; they cause a glitchy-sped up game rate. (Eventuelly everything speeds up)
-    The doors leading to next level are currently not working as intented. I wan't them to spawn parallel to the next walked-through door. (Mirror effect)
-    Slight variation in enemies/player movement when going diagonally.
-    ++ unknown
+<ul>
+    <li>The abilities are disabled; they cause a glitchy-sped up game rate. (Eventuelly everything speeds up)</li>
+    <li>The doors leading to next level are currently not working as intented. I wan't them to spawn parallel to the next walked-through door. (Mirror effect)</li>
+    <li>Slight variation in enemies/player movement when going diagonally.</li>
+    <li>++ unknown</li>
+</ul>
 
 ### Join the Adventure
 
