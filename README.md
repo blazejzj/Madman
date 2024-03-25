@@ -18,7 +18,10 @@ Activate Abilities: Use keys 1, 2, 3... to unleash your collected powers.
 
 ### Upcoming Features
 
-More themed levels for endless exploration. (Textures)
+<ul>
+    <li>More themed levels for endless exploration. (Textures)</li>
+</ul>
+
 New challenging enemies and epic bosses. (More variety of enemies)
 Additional abilities and upgrades to boost your power.
 Upon death; do something.
@@ -27,10 +30,10 @@ Upon death; do something.
 
 ### Current Known Bugs
 
-The abilities are disabled; they cause a glitchy-sped up game rate. (Eventuelly everything speeds up)
-The doors leading to next level are currently not working as intented. I wan't them to spawn parallel to the next walked-through door. (Mirror effect)
-Slight variation in enemies/player movement when going diagonally.
-++ unknown
+    The abilities are disabled; they cause a glitchy-sped up game rate. (Eventuelly everything speeds up)
+    The doors leading to next level are currently not working as intented. I wan't them to spawn parallel to the next walked-through door. (Mirror effect)
+    Slight variation in enemies/player movement when going diagonally.
+    ++ unknown
 
 ### Join the Adventure
 
