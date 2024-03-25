@@ -12,9 +12,11 @@ Extra Fun with Cheats: Experiment with different modes, like god mode or level s
 
 ## How to Play
 
-Move: Navigate through dungeons using W, A, S, D for direction.
-Attack: Press SPACE to launch attacks against your foes.
-Activate Abilities: Use keys 1, 2, 3... to unleash your collected powers.
+<ul>
+    <li>Move: Navigate through dungeons using W, A, S, D for direction.</li>
+    <li>Attack: Press SPACE to launch attacks against your foes.</li>
+    <li>Activate Abilities: Use keys 1, 2, 3... to unleash your collected powers.</li>
+</ul>
 
 ## Upcoming Features
 
