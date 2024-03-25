@@ -9,29 +9,26 @@ public class Enemy extends Entity {
     }
 
     public void moveTowards(int targetX, int targetY) {
-        double dx = targetX - x;
-        double dy = targetY - y;
+        // Calculate the horizontal and vertical distances to the target, (vector)
+        double dx = targetX - (x + width / 2);
+        double dy = targetY - (y + height / 2);
+
+        // Calculate the total distance to the target, (vector length)
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance > 1) {
-            dx /= distance;
-            dy /= distance;
-            dx *= speed;
-            dy *= speed;
+        if (distance <= 0)
+            return;
 
-            // Calculate new position
-            double nextX = x + dx;
-            double nextY = y + dy;
+        // Calculate the movement amounts based on speed and distance, (vector normalization)
+        double moveX = (dx / distance) * speed;
+        double moveY = (dy / distance) * speed;
 
-            // Check if the next position is closer to the target than the current position
-            if (Math.sqrt(Math.pow(targetX - nextX, 2) + Math.pow(targetY - nextY, 2)) < distance) {
-                x = (int) nextX;
-                y = (int) nextY;
-
-                getBounds().setLocation(x, y);
-            }
-        }
+        // Update the enemy position based on the calculated movement
+        // round number
+        x += Math.round(moveX);
+        y += Math.round(moveY);
     }
+
     public void avoidCollision(Enemy other) {
         double dx = x - other.x;
         double dy = y - other.y;
@@ -44,9 +41,11 @@ public class Enemy extends Entity {
         dy /= length;
 
         // Move slightly away from the other enemy
-        x += dx;
-        y += dy;
+        // round number
+        x += Math.round(dx);
+        y += Math.round(dy);
     }
+
     public boolean takeDamage(int damage) {
         this.health -= damage;
         return this.health <= 0;
