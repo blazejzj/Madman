@@ -450,7 +450,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void spawnEnemy() {
         int[] cords = spawnEnemyCoordinates();
-        Enemy enemy = new Enemy(cords[0], cords[1], 60, 60, 1, 2);
+        Enemy enemy = new Enemy(cords[0], cords[1], 60, 60, 1, 1.5);
         enemies.add(enemy);
     }
 
