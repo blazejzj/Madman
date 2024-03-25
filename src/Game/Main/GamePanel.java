@@ -111,24 +111,10 @@ public class GamePanel extends JPanel implements KeyListener {
     private void startGameTimer() {
         int delay = 1000 / FPS; // Convert frame rate to delay in milliseconds for 60 fps
         new Timer(delay, e -> {
-            long startTime = System.nanoTime();
-    
             updateGame();
             repaint();
-    
-            long endTime = System.nanoTime();
-            long frameTime = endTime - startTime;
-    
-             System.out.println("Frame time: " + frameTime + " ms");
         }).start();
     }
-
-    // private void startGameTimer() {
-    //     new Timer(0, e -> {
-    //         updateGame();
-    //         repaint();
-    //     }).start();
-    // }
 
     private void updateGame() {
         if (!isGameActive) {
@@ -181,7 +167,7 @@ public class GamePanel extends JPanel implements KeyListener {
         // move enemies towards player -> handle the collision using vector
         for (int i = 0; i < enemies.size(); i++) {
             Enemy current = enemies.get(i);
-            current.moveTowards(character.x, character.y);
+            current.moveTowards(character.x + character.width / 2, character.y + character.height / 2);
 
             for (int j = 0; j < enemies.size(); j++) {
                 if (i != j) {
@@ -542,17 +528,14 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void drawEnemies(Graphics g) {
         for (var enemy : enemies) {
-            int drawX = (int) enemy.x;
-            int drawY = (int) enemy.y;
-
             if (enemy instanceof EnemyTierTwo) {
-                g.drawImage(enemyTierTwoImage, drawX, drawY, enemy.getBounds().width, enemy.getBounds().height, this);
+                g.drawImage(enemyTierTwoImage, enemy.x, enemy.y, enemy.width, enemy.height, this);
             }
             else if (enemy instanceof  EnemyTierThree) {
-                g.drawImage(enemyTierThreeImage, drawX, drawY, enemy.getBounds().width + 20, enemy.getBounds().height + 20, this);
+                g.drawImage(enemyTierThreeImage, enemy.x, enemy.y, enemy.width, enemy.height, this);
             }
             else {
-                g.drawImage(enemyTierOneImage, drawX, drawY, enemy.getBounds().width, enemy.getBounds().height, this);
+                g.drawImage(enemyTierOneImage, enemy.x, enemy.y, enemy.width, enemy.height, this);
             }
         }
     }
