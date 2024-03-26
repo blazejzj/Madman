@@ -25,7 +25,8 @@ Extra Fun with Cheats: Experiment with different modes, like god mode or level s
     <li>New challenging enemies and epic bosses. (More variety of enemies)</li>
     <li>Additional abilities and upgrades to boost your power.</li>
     <li>Upon death; do something.</li>
-    <li>++</li>
+    <li>Display round/game information nicely; currently at left top corner.
+    <li>++ more</li>
 </ul>
 
 
@@ -36,6 +37,9 @@ Extra Fun with Cheats: Experiment with different modes, like god mode or level s
     <li><del>The abilities are disabled; they cause a glitchy-sped up game rate. (Eventually everything speeds up)</del></li>
     <li>The doors leading to the next level are currently not working as intended. I want them to spawn parallel to the next walked-through door. (Mirror effect)</li>
     <li><del>Slight variation in enemies/player movement when going diagonally.</del></li>
+    <li><del>Abilities spawn outside of map/on the walls.</del></li>
+    <li>It shouldn't be possible using many abilities at once. We want to limit it to 1; Right now you can press multiple indexes; start multiple abilities which kind of bug the game out.</li>
+    <li>The HealingPotion ability upon picking up doesn't increase players health. (This is not a pressable ability); only activated when interstected with</li>
     <li>++ unknown</li>
 </ul>
 

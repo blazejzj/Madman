@@ -1,6 +1,7 @@
 package Game.Main;
 import Game.Abilities.Ability;
 import Game.Abilities.Freeze;
+import Game.Abilities.HealingPotion;
 import Game.Entities.Enemy;
 import Game.Entities.EnemyTierThree;
 import Game.Entities.EnemyTierTwo;
@@ -20,14 +21,13 @@ import java.awt.image.BufferedImage;
 
 public class GamePanel extends JPanel implements KeyListener {
 
-    final static int FPS = 144;
-
     // CONSTANTS
     private Player character;
     private boolean playerHit = false;
     private final long playerHitDuration = 3000;
     private long playerHitDurationStartTime  = 0;
     private final long SHOTDELAY = 300;
+    final static int FPS = 144;
 
     // Cheats
     private boolean godMode = false;
@@ -35,12 +35,13 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean debugMode = true;
 
     // Image paths
-    private static final String BACKGROUND_IMAGE_PATH = "src/mapLayout/arena1.jpg";
     private static final String CHARACTER_IMAGE_PATH = "src/mapLayout/char7.png";
     private static final String PROJECTILE_IMAGE_PATH = "src/mapLayout/projectile1.png";
     private static final String ENEMYTIERONE_IMAGE_PATH = "src/mapLayout/ghost.png";
     private static final String ENEMYTIERTWO_IMAGE_PATH = "src/mapLayout/ghost1.png";
     private static final String ENEMYTIERTHREE_IMAGE_PATH = "src/mapLayout/ghost2.png";
+    private static final String freezeNOBG_IMAGE_PATH = "src/mapLayout/freezeNoBG.png";
+    private static final String healingPotion_IMAGE_PATH = "src/MapLayout/healingPotionNoBG.png";
 
 
     // Game state variables
@@ -55,14 +56,13 @@ public class GamePanel extends JPanel implements KeyListener {
     private final int mapWidth = 1000;
     private final int mapHeight = 800;
     private int tileSize = 50;
-
-    private BufferedImage backgroundImage, characterImage, projectileImage, enemyTierOneImage, enemyTierTwoImage, enemyTierThreeImage;
+    private BufferedImage characterImage, projectileImage, enemyTierOneImage, enemyTierTwoImage, enemyTierThreeImage, abilityFreezeImage, abilityHealingPotionImage;
     private ArrayList<Enemy> enemies;
     private Random rand;
-    GameMap gameMap;
+    private GameMap gameMap;
 
     // Abilities active
-    boolean abilityOneActive = false;
+    boolean isAbilityActive = false;
 
     // METHODS
     public void startGame() {
@@ -95,12 +95,13 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void loadImages() {
         try {
-            backgroundImage = ImageIO.read(new File(BACKGROUND_IMAGE_PATH));
             characterImage = ImageIO.read(new File(CHARACTER_IMAGE_PATH));
             projectileImage = ImageIO.read(new File(PROJECTILE_IMAGE_PATH));
             enemyTierOneImage = ImageIO.read(new File(ENEMYTIERONE_IMAGE_PATH));
             enemyTierTwoImage = ImageIO.read(new File(ENEMYTIERTWO_IMAGE_PATH));
             enemyTierThreeImage = ImageIO.read(new File(ENEMYTIERTHREE_IMAGE_PATH));
+            abilityFreezeImage = ImageIO.read(new File(freezeNOBG_IMAGE_PATH));
+            abilityHealingPotionImage = ImageIO.read(new File(healingPotion_IMAGE_PATH));
 
         } catch (IOException e) {
             System.out.println("Error? Something went wrong" + e.getMessage());
@@ -135,6 +136,9 @@ public class GamePanel extends JPanel implements KeyListener {
 
         enemyTierThreeRage();
 
+        spawnHandleAbilities();
+
+
         if (walkedThroughDoor) {
             walkedThroughDoor = false;
             // move door to a new random location FOR NOW -> later mirror the door to different side
@@ -148,31 +152,54 @@ public class GamePanel extends JPanel implements KeyListener {
             bombaDropped = false;
         }
 
+    }
 
-        // Handle abilities -> Assign later as an independent method 
-
+    private void spawnHandleAbilities() {
         // Add a random chance for an ability to appear
-        if (Math.random() < 0.001 && !enemies.isEmpty()) {
-            // Random coordinates within the map
-            int x = (int) (Math.random() * gameMap.getMapWidth());
-            int y = (int) (Math.random() * gameMap.getMapHeight());
-            Freeze freeze = new Freeze(x, y, 40, 40, enemies);
-            abilities.add(freeze);
-        }
+        if (Math.random() < 0.01 && !enemies.isEmpty()) {
+            int playableWidth = gameMap.getMapWidth() - tileSize * 2; // Subtract wall thickness from both sides
+            int playableHeight = gameMap.getMapHeight() - tileSize * 2; // Subtract wall thickness from top and bottom
+    
+            // Adjust for ability size to ensure it spawns fully within the playable area
+            playableWidth -= 40; // Subtract the width of the ability
+            playableHeight -= 40; // Subtract the height of the ability
+    
+            int x = tileSize + (int) (Math.random() * playableWidth);
+            int y = tileSize + (int) (Math.random() * playableHeight);
+    
 
+            // Randomly choose spawned ability
+            int abilityType = (int) (Math.random() * 2); // Either 0 or 1
+
+            Ability newAbility;
+            if (abilityType == 0) {
+                newAbility = new Freeze(x, y, 40, 40, enemies);
+            }
+
+            else {
+                newAbility = new HealingPotion(x, y, 40, 40, character);
+            }
+            abilities.add(newAbility);
+
+        }
+    
         for (var ability : abilities) {
             if (character.getBounds().intersects(ability.getBounds())) {
-                System.out.println("TOTAL ABILITIES BEFORE PICK: " + character.abilities.size());
-                character.pickUpAbility(ability);
-                System.out.println("TOTAL ABILITIES AFTER PICK: " + character.abilities.size());
-                // Remove the ability from the game after it's picked up
-                abilities.remove(ability);
-                break;
+                if (ability instanceof HealingPotion) {
+                    ability.apply(null);
+                    abilities.remove(ability);
+                }
+                else {
+                    character.pickUpAbility(ability);
+                    // Remove the ability from the game after it's picked up
+                    abilities.remove(ability);
+                    break;
+                }
             }
         }
     }
-
-    public void playerMovement() {
+    
+    private void playerMovement() {
         // Player movement
         if (upPressed) {
             character.y -= character.getSpeed();
@@ -206,7 +233,7 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
-    public void handleGettingHit() {
+    private void handleGettingHit() {
         // Invincible mode upon getting hit 
         if (playerHit && System.currentTimeMillis() - playerHitDurationStartTime > playerHitDuration) {
             playerHit = false;
@@ -228,7 +255,7 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
-    public void moveEnemyCheckCollision() {
+    private void moveEnemyCheckCollision() {
         // move enemies towards player -> handle the collision using vector
         for (int i = 0; i < enemies.size(); i++) {
             Enemy current = enemies.get(i);
@@ -245,7 +272,7 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     } 
 
-    public void initializeNewLevel() {
+    private void initializeNewLevel() {
         // Check if level is complete and spawn new enemies if so
         if (enemies.isEmpty() && enemiesSpawnedSoFar >= totalEnemiesToSpawn) {
             enemiesDefeated = true;
@@ -269,7 +296,7 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
-    public void giveCoordinates(KeyEvent e) {
+    private void giveCoordinates(KeyEvent e) {
         System.out.println(character.x + " " + character.y);
         System.out.println(gameMap.getDoorX()  + " " + gameMap.getDoorY());
     }
@@ -306,19 +333,15 @@ public class GamePanel extends JPanel implements KeyListener {
                 godMode(e);
                 break;
             case KeyEvent.VK_1:
-                System.out.println("CHARACTER SPEED: " + character.speed);
-                if (!character.abilities.isEmpty() && character.abilities.size() > 0 && !abilityOneActive) {
+                if (!character.abilities.isEmpty() && !isAbilityActive) {
                     System.out.println("Pressed 1: Used ability!");
-                    character.useAbility(0, new Runnable() {
-                        @Override
-                        public void run() {
-                            abilityOneActive = false;
-                        }
+                    character.useAbility(0, () -> {
+                        isAbilityActive = false; 
                     });
-                    abilityOneActive = true;
+                    isAbilityActive = true;
                 }
-                System.out.println("CHARACTER SPEED: " + character.speed);
                 break;
+            
             case KeyEvent.VK_2:
                 if (!character.abilities.isEmpty() && character.abilities.size() > 1) { // Ensure theres atleast 2 abilities
                     character.useAbility(1, null);
@@ -531,10 +554,6 @@ public class GamePanel extends JPanel implements KeyListener {
     }
 
     private void drawBackground(Graphics g) {
-        // initially was a image imported of an arena
-//       if (backgroundImage != null) {
-//            g.drawImage(backgroundImage, 0, 0, this.getWidth(), this.getHeight(), this);
-//        }
         gameMap.render(g);
     }
 
@@ -571,8 +590,18 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void drawAbilities(Graphics g) {
         for (var ability : abilities) {
-            g.setColor(Color.GREEN); // Set the color to lime
-            g.fillRect(ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight());
+            if (ability instanceof Freeze) {
+                g.drawImage(abilityFreezeImage, ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight(), this);
+            }
+            else if (ability instanceof HealingPotion) {
+                g.drawImage(abilityHealingPotionImage, ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight(), this);
+            }
+            else {
+                // Throwback 
+                g.setColor(Color.GREEN); // Set the color to lime
+                g.fillRect(ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight());
+            }
+
         }
     }
 
@@ -584,7 +613,30 @@ public class GamePanel extends JPanel implements KeyListener {
             g.drawString("Total Enemies: " + totalEnemiesToSpawn, 10, 40);
             g.drawString("Enemies left: " + enemies.size(), 10, 60);
             g.drawString("Health: " + character.getHealth(), 10, 80);
+
+            // Display information about held abilities (Eventually adding a nicer GUI)
+
+            g.drawString("Ability 1: " + getAbilityNameByIndex(0), 10, 100);
+            g.drawString("Ability 2: " + getAbilityNameByIndex(1), 10, 120);
+            g.drawString("Ability 3: " + getAbilityNameByIndex(2), 10, 140);
         }
+    }
+
+    private String getAbilityNameByIndex(int index) {
+        if (index >= character.abilities.size()) {
+            return "NONE";
+        }
+
+        Ability ability = character.abilities.get(index);
+        if (ability instanceof Freeze) {
+            return "Freeze";
+        }
+
+        if (ability instanceof HealingPotion) {
+            return "Healing-Potion";
+        }
+
+        return "Unknown";
     }
 
     private void killEnemies(KeyEvent e) {

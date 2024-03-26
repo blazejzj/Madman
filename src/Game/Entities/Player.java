@@ -15,10 +15,11 @@ public class Player extends Entity {
 
     // Methods
     public void pickUpAbility(Ability ability) {
-        if (abilities.size() < MAX_ABILITIES) {
+        if (abilities.size() < MAX_ABILITIES && !(ability instanceof HealingPotion)) {
             abilities.add(ability);
         }
     }
+
     @Override
     public void useAbility(int index, Runnable callback) {
         if (index < abilities.size()) {
@@ -26,5 +27,12 @@ public class Player extends Entity {
             abilities.remove(index);
         }
     }
+
+    public void heal(int healingPoints) {
+        System.out.println("Healing applied: " + healingPoints + ". Current health: " + this.health);
+        this.health += healingPoints;
+        System.out.println("New health: " + this.health);
+    }
+    
 
 }
