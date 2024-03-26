@@ -33,9 +33,9 @@ Extra Fun with Cheats: Experiment with different modes, like god mode or level s
 ## Current Known Bugs
 
 <ul>
-    <li>The abilities are disabled; they cause a glitchy-sped up game rate. (Eventuelly everything speeds up)</li>
+    <li>---The abilities are disabled; they cause a glitchy-sped up game rate. (Eventuelly everything speeds up)---</li>
     <li>The doors leading to next level are currently not working as intented. I wan't them to spawn parallel to the next walked-through door. (Mirror effect)</li>
-    <li>Slight variation in enemies/player movement when going diagonally.</li>
+    <li>---Slight variation in enemies/player movement when going diagonally.---</li>
     <li>++ unknown</li>
 </ul>
 

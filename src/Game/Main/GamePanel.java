@@ -1,6 +1,6 @@
 package Game.Main;
 import Game.Abilities.Ability;
-//import Game.Abilities.Freeze;
+import Game.Abilities.Freeze;
 import Game.Entities.Enemy;
 import Game.Entities.EnemyTierThree;
 import Game.Entities.EnemyTierTwo;
@@ -117,9 +117,62 @@ public class GamePanel extends JPanel implements KeyListener {
     }
 
     private void updateGame() {
+
+        // If game not on return
         if (!isGameActive) {
             return;
         }
+
+        playerMovement();
+
+        moveProjectileCheckCollision();
+
+        moveEnemyCheckCollision();
+
+        initializeNewLevel();
+
+        handleGettingHit();
+
+        enemyTierThreeRage();
+
+        if (walkedThroughDoor) {
+            walkedThroughDoor = false;
+            // move door to a new random location FOR NOW -> later mirror the door to different side
+            gameMap.placeDoorsRandomly();
+            character.x = 300;
+            character.y = 400;
+        }
+
+        if (bombaDropped) {
+            enemies.clear();
+            bombaDropped = false;
+        }
+
+
+        // Handle abilities -> Assign later as an independent method 
+
+        // Add a random chance for an ability to appear
+        if (Math.random() < 0.001 && !enemies.isEmpty()) {
+            // Random coordinates within the map
+            int x = (int) (Math.random() * gameMap.getMapWidth());
+            int y = (int) (Math.random() * gameMap.getMapHeight());
+            Freeze freeze = new Freeze(x, y, 40, 40, enemies);
+            abilities.add(freeze);
+        }
+
+        for (var ability : abilities) {
+            if (character.getBounds().intersects(ability.getBounds())) {
+                System.out.println("TOTAL ABILITIES BEFORE PICK: " + character.abilities.size());
+                character.pickUpAbility(ability);
+                System.out.println("TOTAL ABILITIES AFTER PICK: " + character.abilities.size());
+                // Remove the ability from the game after it's picked up
+                abilities.remove(ability);
+                break;
+            }
+        }
+    }
+
+    public void playerMovement() {
         // Player movement
         if (upPressed) {
             character.y -= character.getSpeed();
@@ -151,23 +204,35 @@ public class GamePanel extends JPanel implements KeyListener {
         if (character.y > gameMap.getMapHeight() - 50 - (int) character.getHeight()) {
             character.y = gameMap.getMapHeight() - 50 - (int) character.getHeight();
         }
+    }
 
-        // Move and check projectiles
-        for (int i = 0; i < projectiles.size(); i++) {
-            Projectile p = projectiles.get(i);
-            p.move();
-            if (p.bounds.x > getWidth() || p.bounds.y > getHeight() ||
-                    p.bounds.x < 0 || p.bounds.y < 0) { // Check if projectile is off screen
-                projectiles.remove(i);
-                i--; // Decrement i to avoid skipping the next projectile
+    public void handleGettingHit() {
+        // Invincible mode upon getting hit 
+        if (playerHit && System.currentTimeMillis() - playerHitDurationStartTime > playerHitDuration) {
+            playerHit = false;
+        }
+
+        for (var enemy : enemies) {
+            if (character.intersects(enemy.getBounds()) && !playerHit) {
+                if (godMode) {
+                    continue;
+                }
+                character.setHealth(character.getHealth() - 1);
+                playerHit = true;
+                playerHitDurationStartTime = System.currentTimeMillis();
+
+                if (character.getHealth() <= 0) {
+                    System.out.println("Game over you lose");
+                }
             }
         }
-        checkProjectileCollission();
+    }
 
+    public void moveEnemyCheckCollision() {
         // move enemies towards player -> handle the collision using vector
         for (int i = 0; i < enemies.size(); i++) {
             Enemy current = enemies.get(i);
-            current.moveTowards(character.x + character.width / 2, character.y + character.height / 2);
+            current.moveTowards(character.x + character.width, character.y + character.height);
 
             for (int j = 0; j < enemies.size(); j++) {
                 if (i != j) {
@@ -178,7 +243,9 @@ public class GamePanel extends JPanel implements KeyListener {
                 }
             }
         }
+    } 
 
+    public void initializeNewLevel() {
         // Check if level is complete and spawn new enemies if so
         if (enemies.isEmpty() && enemiesSpawnedSoFar >= totalEnemiesToSpawn) {
             enemiesDefeated = true;
@@ -199,65 +266,6 @@ public class GamePanel extends JPanel implements KeyListener {
             currentLevel++;
             abilities.clear();
             spawnEnemiesForLevel();
-        }
-
-        if (walkedThroughDoor) {
-            walkedThroughDoor = false;
-            // move door to a new random location FOR NOW -> later mirror the door to different side
-            gameMap.placeDoorsRandomly();
-            character.x = 300;
-            character.y = 400;
-        }
-
-        // Check if boss has less than 10 health -> rage mode
-        for (var tier3 : enemies) {
-            if (tier3 instanceof EnemyTierThree && tier3.getHealth() < 10) {
-                tier3.setSpeed(2);
-            }
-        }
-
-        if (playerHit && System.currentTimeMillis() - playerHitDurationStartTime > playerHitDuration) {
-            playerHit = false;
-        }
-
-        for (var enemy : enemies) {
-            if (character.intersects(enemy.getBounds()) && !playerHit) {
-                if (godMode) {
-                    continue;
-                }
-                character.setHealth(character.getHealth() - 1);
-                playerHit = true;
-                playerHitDurationStartTime = System.currentTimeMillis();
-
-                if (character.getHealth() <= 0) {
-                    System.out.println("Game over you lose");
-                }
-            }
-        }
-
-        if (bombaDropped) {
-            enemies.clear();
-            bombaDropped = false;
-        }
-
-        // Add a random chance for an ability to appear
-        if (Math.random() < 0.011 && !enemies.isEmpty()) {
-            // Random coordinates within the map
-            int x = (int) (Math.random() * gameMap.getMapWidth());
-            int y = (int) (Math.random() * gameMap.getMapHeight());
-//            Freeze freeze = new Freeze(x, y, 40, 40, enemies, 3000);
-//            abilities.add(freeze);
-        }
-
-        for (var ability : abilities) {
-            if (character.getBounds().intersects(ability.getBounds())) {
-                System.out.println("TOTAL ABILITIES BEFORE PICK: " + character.abilities.size());
-                character.pickUpAbility(ability);
-                System.out.println("TOTAL ABILITIES AFTER PICK: " + character.abilities.size());
-                // Remove the ability from the game after it's picked up
-                abilities.remove(ability);
-                break;
-            }
         }
     }
 
@@ -298,8 +306,9 @@ public class GamePanel extends JPanel implements KeyListener {
                 godMode(e);
                 break;
             case KeyEvent.VK_1:
-                if (!abilityOneActive) {
-                    System.out.println("pressed 1 used ability");
+                System.out.println("CHARACTER SPEED: " + character.speed);
+                if (!character.abilities.isEmpty() && character.abilities.size() > 0 && !abilityOneActive) {
+                    System.out.println("Pressed 1: Used ability!");
                     character.useAbility(0, new Runnable() {
                         @Override
                         public void run() {
@@ -308,16 +317,20 @@ public class GamePanel extends JPanel implements KeyListener {
                     });
                     abilityOneActive = true;
                 }
+                System.out.println("CHARACTER SPEED: " + character.speed);
                 break;
             case KeyEvent.VK_2:
-                character.useAbility(1, null);
+                if (!character.abilities.isEmpty() && character.abilities.size() > 1) { // Ensure theres atleast 2 abilities
+                    character.useAbility(1, null);
+                }
                 break;
             case KeyEvent.VK_3:
-                character.useAbility(2, null);
+                if (!character.abilities.isEmpty() && character.abilities.size() > 2) { // Ensure theres atleast 3 abilities
+                    character.useAbility(1, null);
+                }
                 break;
         }
     }
-    // testing2
 
     private void shootProjectiles(String direction) {
         if (!playerHit) {
@@ -332,7 +345,18 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
-    private void checkProjectileCollission() {
+    private void moveProjectileCheckCollision() {
+        // Move and check projectiles
+        for (int i = 0; i < projectiles.size(); i++) {
+            Projectile p = projectiles.get(i);
+            p.move();
+            if (p.bounds.x > getWidth() || p.bounds.y > getHeight() ||
+                    p.bounds.x < 0 || p.bounds.y < 0) { // Check if projectile is off screen
+                projectiles.remove(i);
+                i--; // Decrement i to avoid skipping the next projectile
+            }
+        }
+
         Iterator<Projectile> projectileIterator = projectiles.iterator();
 
         while (projectileIterator.hasNext()) {
@@ -363,9 +387,6 @@ public class GamePanel extends JPanel implements KeyListener {
 
         // calculate how many green enemies spawn -> lvl 10, 1 -> lvl 20, 2 -> lvl 30, 3 etc
         int enemyTierThreeCount = currentLevel % 10 == 0 ? currentLevel / 10 : 0;
-//        if ((enemyTierThreeCount % 10) == 0) {
-//            enemyTierThreeCount = currentLevel / 10;
-//        }
 
         // total enemies to spawn
         int totalEnemyCount = 4 + currentLevel - 1 + enemyTierTwoCount;
@@ -384,7 +405,6 @@ public class GamePanel extends JPanel implements KeyListener {
             spawnList.add(2); // green enemy
         }
 
-        // shuffle list
         Collections.shuffle(spawnList);
 
         // timer for spawning enemies in a random order
@@ -464,6 +484,15 @@ public class GamePanel extends JPanel implements KeyListener {
         int[] cords = spawnEnemyCoordinates();
         Enemy enemyt3 = new EnemyTierThree(cords[0], cords[1]);
         enemies.add(enemyt3);
+    }
+
+    private void enemyTierThreeRage() {
+        // Check if boss has less than 10 health -> rage mode
+        for (var tier3 : enemies) {
+            if (tier3 instanceof EnemyTierThree && tier3.getHealth() < 10) {
+                tier3.setSpeed(2);
+            }
+        }
     }
 
     private boolean isColliding(Enemy enemy1, Enemy enemy2) {
@@ -565,6 +594,7 @@ public class GamePanel extends JPanel implements KeyListener {
             bombaDropped = true;
         }
     }
+
     private void increaseLevel(KeyEvent e) {
         var usage = e.getKeyCode();
         if (usage == KeyEvent.VK_L) {
@@ -572,6 +602,7 @@ public class GamePanel extends JPanel implements KeyListener {
             currentLevel++;
         }
     }
+
     private void godMode(KeyEvent e) {
         var usage = e.getKeyCode();
         if (usage == KeyEvent.VK_G) {
@@ -586,8 +617,6 @@ public class GamePanel extends JPanel implements KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-        // has to be here -> KeyListener is abstract
-    }
+    public void keyTyped(KeyEvent e) {}
 
 }

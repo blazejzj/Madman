@@ -57,13 +57,10 @@ public class Enemy extends Entity {
 
     public void freeze() {
             this.speed = 0;
+            System.out.println("Current speed: " + speed);
     }
-
-    // public void unfreeze(double originalSpeed) {
-    //         this.speed = originalSpeed;
-    // }
-
     public void unfreeze() {
         this.speed = originalSpeed;
+        System.out.println("Current speed: " + speed);
 }
 }
