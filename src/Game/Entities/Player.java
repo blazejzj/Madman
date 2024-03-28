@@ -15,7 +15,10 @@ public class Player extends Entity {
 
     // Methods
     public void pickUpAbility(Ability ability) {
-        if (abilities.size() < MAX_ABILITIES && !(ability instanceof HealingPotion)) {
+        // if (abilities.size() < MAX_ABILITIES && !(ability instanceof HealingPotion)) {
+        //     abilities.add(ability);
+        // }
+        if (abilities.size() < MAX_ABILITIES) {
             abilities.add(ability);
         }
     }
@@ -29,8 +32,7 @@ public class Player extends Entity {
     }
 
     public void heal(int healingPoints) {
-        System.out.println("Healing applied: " + healingPoints + ". Current health: " + this.health);
-        this.health += healingPoints;
+        setHealth(getHealth() + healingPoints);
         System.out.println("New health: " + this.health);
     }
     

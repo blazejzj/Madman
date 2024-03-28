@@ -1,12 +1,12 @@
 package Game.Main;
 import Game.Abilities.Ability;
 import Game.Abilities.Freeze;
-import Game.Abilities.HealingPotion;
 import Game.Entities.Enemy;
 import Game.Entities.EnemyTierThree;
 import Game.Entities.EnemyTierTwo;
 import Game.Entities.Player;
 import Game.Projectiles.Projectile;
+import Game.Collectible.*;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -24,10 +24,12 @@ public class GamePanel extends JPanel implements KeyListener {
     // CONSTANTS
     private Player character;
     private boolean playerHit = false;
-    private final long playerHitDuration = 3000;
+    private static final long playerHitDuration = 3000;
     private long playerHitDurationStartTime  = 0;
-    private final long SHOTDELAY = 300;
-    final static int FPS = 144;
+    private static final long SHOTDELAY = 300;
+    private static final int FPS = 144;
+    private static final long ABILITY_COOLDOWN_DURATION = 5000;
+
 
     // Cheats
     private boolean godMode = false;
@@ -51,15 +53,17 @@ public class GamePanel extends JPanel implements KeyListener {
     private String lastDirection = "RIGHT";
     private ArrayList<Projectile> projectiles;
     private ArrayList<Ability> abilities = new ArrayList<>();
+    private ArrayList<Collectible> collectibles = new ArrayList<>();
     private long lastShotTime = 0;
     private int currentLevel, totalEnemiesToSpawn, enemiesSpawnedSoFar;
-    private final int mapWidth = 1000;
-    private final int mapHeight = 800;
+    private static final int mapWidth = 1000;
+    private static final int mapHeight = 800;
     private int tileSize = 50;
-    private BufferedImage characterImage, projectileImage, enemyTierOneImage, enemyTierTwoImage, enemyTierThreeImage, abilityFreezeImage, abilityHealingPotionImage;
+    private BufferedImage characterImage, projectileImage, enemyTierOneImage, enemyTierTwoImage, enemyTierThreeImage, abilityFreezeImage, collectibleHealingPotion;
     private ArrayList<Enemy> enemies;
     private Random rand;
     private GameMap gameMap;
+    private long[] abilityCooldowns = new long[3];
 
     // Abilities active
     boolean isAbilityActive = false;
@@ -101,7 +105,7 @@ public class GamePanel extends JPanel implements KeyListener {
             enemyTierTwoImage = ImageIO.read(new File(ENEMYTIERTWO_IMAGE_PATH));
             enemyTierThreeImage = ImageIO.read(new File(ENEMYTIERTHREE_IMAGE_PATH));
             abilityFreezeImage = ImageIO.read(new File(freezeNOBG_IMAGE_PATH));
-            abilityHealingPotionImage = ImageIO.read(new File(healingPotion_IMAGE_PATH));
+            collectibleHealingPotion = ImageIO.read(new File(healingPotion_IMAGE_PATH));
 
         } catch (IOException e) {
             System.out.println("Error? Something went wrong" + e.getMessage());
@@ -138,6 +142,15 @@ public class GamePanel extends JPanel implements KeyListener {
 
         spawnHandleAbilities();
 
+        spawnHandleCollectibles();
+
+        for (Iterator<Collectible> iterator = collectibles.iterator(); iterator.hasNext();) {
+            Collectible collectible = iterator.next();
+            if (character.getBounds().intersects(collectible.getBounds())) {
+                collectible.applyEffect(character);
+                iterator.remove();
+            }
+        }
 
         if (walkedThroughDoor) {
             walkedThroughDoor = false;
@@ -151,6 +164,8 @@ public class GamePanel extends JPanel implements KeyListener {
             enemies.clear();
             bombaDropped = false;
         }
+
+        
 
     }
 
@@ -171,31 +186,39 @@ public class GamePanel extends JPanel implements KeyListener {
             // Randomly choose spawned ability
             int abilityType = (int) (Math.random() * 2); // Either 0 or 1
 
+            // Ability newAbility;
+            // if (abilityType == 0) {
+            //     newAbility = new Freeze(x, y, 40, 40, enemies);
+            // }
+            // abilities.add(newAbility);
             Ability newAbility;
-            if (abilityType == 0) {
-                newAbility = new Freeze(x, y, 40, 40, enemies);
-            }
-
-            else {
-                newAbility = new HealingPotion(x, y, 40, 40, character);
-            }
+            newAbility = new Freeze(x, y, 40, 40, enemies);
             abilities.add(newAbility);
 
         }
     
         for (var ability : abilities) {
             if (character.getBounds().intersects(ability.getBounds())) {
-                if (ability instanceof HealingPotion) {
-                    ability.apply(null);
-                    abilities.remove(ability);
-                }
-                else {
-                    character.pickUpAbility(ability);
-                    // Remove the ability from the game after it's picked up
-                    abilities.remove(ability);
-                    break;
-                }
+                character.pickUpAbility(ability);
+                abilities.remove(ability);
+                break;
             }
+        }
+    }
+
+    private void spawnHandleCollectibles() {
+        // Fixed size for each collectible
+        int width = 30;
+        int height = 30;
+        int potionHealPoints = 3;
+
+        // Spawn chances + Cant spawn when enemies are not on map
+        if (Math.random() < 0.01 && !enemies.isEmpty()) {
+            int x = rand.nextInt(mapWidth - width);
+            int y = rand.nextInt(mapHeight - height);
+
+            Collectible healingPotion = new HealthPotion(x, y, width, height, potionHealPoints);
+            collectibles.add(healingPotion);
         }
     }
     
@@ -304,6 +327,8 @@ public class GamePanel extends JPanel implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
+        long currentTime = System.currentTimeMillis();
+
         switch (key) {
             case KeyEvent.VK_W:
                 upPressed = true;
@@ -332,27 +357,35 @@ public class GamePanel extends JPanel implements KeyListener {
             case KeyEvent.VK_G:
                 godMode(e);
                 break;
-            case KeyEvent.VK_1:
-                if (!character.abilities.isEmpty() && !isAbilityActive) {
-                    System.out.println("Pressed 1: Used ability!");
-                    character.useAbility(0, () -> {
-                        isAbilityActive = false; 
-                    });
-                    isAbilityActive = true;
+                case KeyEvent.VK_1:
+                if (isAbilityReady(0, currentTime)) {
+                    useAbility(0, currentTime);
                 }
                 break;
-            
+                
             case KeyEvent.VK_2:
-                if (!character.abilities.isEmpty() && character.abilities.size() > 1) { // Ensure theres atleast 2 abilities
-                    character.useAbility(1, null);
+                if (isAbilityReady(1, currentTime)) {
+                    useAbility(1, currentTime);
                 }
                 break;
+                
             case KeyEvent.VK_3:
-                if (!character.abilities.isEmpty() && character.abilities.size() > 2) { // Ensure theres atleast 3 abilities
-                    character.useAbility(1, null);
+                if (isAbilityReady(2, currentTime)) {
+                    useAbility(2, currentTime);
                 }
                 break;
         }
+    }
+
+    private boolean isAbilityReady(int abilityIndex, long currentTime) {
+        // Check if the ability exists and if the cooldown has passed
+        return character.abilities.size() > abilityIndex && currentTime - abilityCooldowns[abilityIndex] > ABILITY_COOLDOWN_DURATION;
+    }
+
+    private void useAbility(int abilityIndex, long currentTime) {
+        System.out.println("Pressed " + (abilityIndex + 1 ) + " used ability!");
+        character.useAbility(abilityIndex, null);
+        abilityCooldowns[abilityIndex] = currentTime;
     }
 
     private void shootProjectiles(String direction) {
@@ -551,6 +584,7 @@ public class GamePanel extends JPanel implements KeyListener {
         drawAbilities(g);
         drawEnemies(g);
         drawGameInfo(g);
+        drawCollectibles(g);
     }
 
     private void drawBackground(Graphics g) {
@@ -593,15 +627,28 @@ public class GamePanel extends JPanel implements KeyListener {
             if (ability instanceof Freeze) {
                 g.drawImage(abilityFreezeImage, ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight(), this);
             }
-            else if (ability instanceof HealingPotion) {
-                g.drawImage(abilityHealingPotionImage, ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight(), this);
-            }
+            // else if (ability instanceof HealingPotion) {
+            //     g.drawImage(abilityHealingPotionImage, ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight(), this);
+            // }
             else {
                 // Throwback 
                 g.setColor(Color.GREEN); // Set the color to lime
                 g.fillRect(ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight());
             }
 
+        }
+    }
+
+    private void drawCollectibles(Graphics g) {
+        for(var collectible : collectibles) {
+            if (collectible instanceof HealthPotion) {
+                g.drawImage(collectibleHealingPotion, collectible.getX(), collectible.getY(), collectible.getWidth(), collectible.getHeight(), this);
+            }
+            else {
+                // Throwback
+                g.setColor(Color.GREEN);
+                
+            }
         }
     }
 
@@ -632,9 +679,9 @@ public class GamePanel extends JPanel implements KeyListener {
             return "Freeze";
         }
 
-        if (ability instanceof HealingPotion) {
-            return "Healing-Potion";
-        }
+        // if (ability instanceof HealingPotion) {
+        //     return "Healing-Potion";
+        // }
 
         return "Unknown";
     }
