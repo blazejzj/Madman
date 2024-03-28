@@ -27,6 +27,7 @@ Extra Fun with Cheats: Experiment with different modes, like god mode or level s
     <li>Point system for killing enemies/beating levels; a "shop" to spend points for abilities</li>
     <li>Upon death; do something.</li>
     <li>Display round/game information nicely; currently at left top corner.</li>
+    <li>Possible new enemy movement mechanics; current one work, although possible for improvement<li>
     <li>++ more</li>
 </ul>
 
@@ -39,8 +40,8 @@ Extra Fun with Cheats: Experiment with different modes, like god mode or level s
     <li><del>Abilities/Collectibles spawn outside of map/on the walls.</del></li>
     <li><del>It shouldn't be possible using many abilities at once. We want to limit it to 1; Right now you can press multiple indexes; start multiple abilities which kind of bug the game out.</del></li>
     <li><del>The HealthPotion collectible upon picking up doesn't increase players health; crashed the game</del></li>
+    <li><del>Slight variation in enemies/player movement when going diagonally.</del></li>
     <li>The doors leading to the next level are currently not working as intended. I want them to spawn parallel to the next walked-through door. (Mirror effect)</li>
-    <li>Slight variation in enemies/player movement when going diagonally.</li>
     <li>Enemies walk occasionally faster than supposed to; even though enemies speed stays the same; change speed value to 0 upon enemy collision</li>
     <li>++ unknown</li>
 </ul>

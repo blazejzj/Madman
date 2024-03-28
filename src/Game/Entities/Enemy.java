@@ -16,42 +16,62 @@ public class Enemy extends Entity {
     // Methods
 
     public void moveTowards(int targetX, int targetY) {
-        // Calculate the horizontal and vertical distances to the target, (vector)
-        double dx = targetX - (x + width / 2);
-        double dy = targetY - (y + height / 2);
-
-        // Calculate the total distance to the target, (vector length)
+        // Calculate direction towards the target
+        double centerX = this.x + this.width / 2.0;
+        double centerY = this.y + this.height / 2.0;
+        double dx = targetX - centerX;
+        double dy = targetY - centerY;
+        
         double distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance <= 0)
-            return;
-
-        // Calculate the movement amounts based on speed and distance, (vector normalization)
-        double moveX = (dx / distance) * speed;
-        double moveY = (dy / distance) * speed;
-
-        // Update the enemy position based on the calculated movement
-        // round number
-        x += Math.round(moveX);
-        y += Math.round(moveY);
+        if (distance == 0) return; // Prevent division by zero
+    
+        // Normalize the movement vector
+        dx /= distance;
+        dy /= distance;
+    
+        // Apply normalized speed
+        double moveX = dx * speed;
+        double moveY = dy * speed;
+    
+        // Correcting the movement speed for diagonal movement
+        // Ensure the entity moves at the same speed in all directions
+        double adjustmentFactor = Math.sqrt((moveX * moveX) + (moveY * moveY)) / speed;
+        if (adjustmentFactor > 0) {
+            moveX /= adjustmentFactor;
+            moveY /= adjustmentFactor;
+        }
+    
+        // Update position, rounding to handle sub-pixel movement
+        this.setLocation((int)(this.x + (moveX > 0 ? Math.ceil(moveX) : Math.floor(moveX))),
+                         (int)(this.y + (moveY > 0 ? Math.ceil(moveY) : Math.floor(moveY))));
     }
 
     public void avoidCollision(Enemy other) {
-        double dx = x - other.x;
-        double dy = y - other.y;
+        // Check for collision
+        if (this.intersects(other)) {
+            double dx = this.x - other.x;
+            double dy = this.y - other.y;
 
-        // Normalize direction
-        double length = Math.sqrt(dx * dx + dy * dy);
-        if (length == 0) return; // Prevent division by zero
+            // Normalize direction vector
+            double length = Math.sqrt(dx * dx + dy * dy);
+            if (length == 0) length = 1; // Avoid division by zero 
 
-        dx /= length;
-        dy /= length;
+            dx /= length;
+            dy /= length;
 
-        // Move slightly away from the other enemy
-        // round number
-        x += Math.round(dx);
-        y += Math.round(dy);
+            // Calculate adjustment distance
+            double adjustmentSpeed = speed * 0.1;
+            double adjustX = dx * adjustmentSpeed;
+            double adjustY = dy * adjustmentSpeed;
+
+            // Apply adjustment
+            this.setLocation((int)(this.x + (adjustX > 0 ? Math.ceil(adjustX) : Math.floor(adjustX))),
+                             (int)(this.y + (adjustY > 0 ? Math.ceil(adjustY) : Math.floor(adjustY))));
+            other.setLocation((int)(other.x - (adjustX > 0 ? Math.ceil(adjustX) : Math.floor(adjustX))),
+                              (int)(other.y - (adjustY > 0 ? Math.ceil(adjustY) : Math.floor(adjustY))));
+        }
     }
+    
 
     public boolean takeDamage(int damage) {
         this.health -= damage;
