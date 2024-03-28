@@ -5,7 +5,12 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GameWindow extends JFrame {
+
+    // Instance variables
+
     private final GamePanel gamePanel;
+
+    // Constructor
 
     public GameWindow() {
         pack();
@@ -24,6 +29,8 @@ public class GameWindow extends JFrame {
         this.setVisible(true);
     }
 
+    // Methods
+    
     private void startGame() {
         this.setContentPane(gamePanel);
         this.revalidate();

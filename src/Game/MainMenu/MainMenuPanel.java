@@ -9,8 +9,11 @@ import java.io.File;
 import java.awt.image.BufferedImage;
 
 public class MainMenuPanel extends JPanel {
+
+    // Instance Variables
     private BufferedImage background;
 
+    // Constructor
     public MainMenuPanel(ActionListener startGameListener) {
         // buttons dims
         int buttonWidth = 150;
@@ -29,6 +32,7 @@ public class MainMenuPanel extends JPanel {
         optionButton(buttonWidth, buttonHeight);
     }
 
+    // Methods
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -51,6 +55,7 @@ public class MainMenuPanel extends JPanel {
         // optionButton.addActionListener(startGameListener);
         add(optionButton);
     }
+
     private void continueButton(int buttonWidth, int buttonHeight) {
         JButton continueButton = new JButton("Continue");
         int continueButtonX = 435;   // horizontal from left
@@ -65,6 +70,7 @@ public class MainMenuPanel extends JPanel {
         //continueButton.addActionListener(startGameListener);
         add(continueButton);
     }
+
     private void startButton(int buttonWidth, int buttonHeight, ActionListener startGameListener) {
         JButton startButton = new JButton("Start New Game");
         int startButtonX = 290;   // horizontal from left

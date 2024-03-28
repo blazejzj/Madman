@@ -7,17 +7,20 @@ import Game.Entities.Enemy;
 public class Freeze extends Ability {
 
    // Instance variables
+
    private static final Timer timer = new Timer();
    private List<Enemy> enemies;
    private final int freezeDuration = 3000;
 
    // Constructor
+
    public Freeze(int x, int y, int width, int height, List<Enemy> enemies) {
        super(x, y, width, height);
        this.enemies = enemies;
    }
 
    // Methods
+   
    @Override
    public void apply(Runnable callback) {
        synchronized (enemies) { 

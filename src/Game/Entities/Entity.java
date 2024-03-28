@@ -2,8 +2,13 @@ package Game.Entities;
 import java.awt.Rectangle;
 
 public abstract class Entity extends Rectangle {
+
+    // Instance Variables
+
     public int health;
     public double speed;
+
+    // Constructor
 
     public Entity(int x, int y, int width, int height, int health, double speed) {
         super(x, y, width, height);
@@ -12,21 +17,16 @@ public abstract class Entity extends Rectangle {
     }
 
     // Getters
-    public int getHealth() {
-        return health;
-    }
-    public double getSpeed() {
-        return speed;
-    }
+
+    public int getHealth() {return health;}
+    public double getSpeed() {return speed;}
 
     // Setters
-    public void setHealth(int health) {
-        this.health = health;
-    }
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
+
+    public void setHealth(int health) {this.health = health;}
+    public void setSpeed(double speed) {this.speed = speed;}
 
     // Methods
+    
     public abstract void useAbility(int index, Runnable runnable);
 }

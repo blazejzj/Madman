@@ -1,12 +1,19 @@
 package Game.Entities;
 
 public class Enemy extends Entity {
+
+    // Instance variables
+    
     public double originalSpeed;
+
+    // Constructor
 
     public Enemy(int x, int y, int width, int height, int health, double speed) {
         super(x, y, width, height, health, speed);
         this.originalSpeed = speed;
     }
+
+    // Methods
 
     public void moveTowards(int targetX, int targetY) {
         // Calculate the horizontal and vertical distances to the target, (vector)
@@ -58,6 +65,7 @@ public class Enemy extends Entity {
     public void freeze() {
             this.speed = 0;
     }
+
     public void unfreeze() {
         this.speed = originalSpeed;
     }

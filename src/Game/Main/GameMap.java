@@ -1,4 +1,5 @@
 package Game.Main;
+
 import java.awt.*;
 import java.util.Random;
 
@@ -17,6 +18,7 @@ public class GameMap {
     private Point oldDoorPosition;
 
     // Constructors
+
     public GameMap(int mapWidth, int mapHeight, int tileSize) {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
@@ -31,6 +33,7 @@ public class GameMap {
     }
 
     // Getters
+
     public int getMapHeight() {return mapHeight;}
     public int getMapWidth() {return mapWidth;}
     public int getTileSize() {return tileSize;}
@@ -39,6 +42,7 @@ public class GameMap {
 
 
     // Methods
+    
     private void initializeMap() {
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {

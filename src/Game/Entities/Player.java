@@ -4,20 +4,19 @@ import Game.Abilities.*;
 import java.util.ArrayList;
 
 public class Player extends Entity {
+    
+    // Instance variables
     public ArrayList<Ability> abilities = new ArrayList<>();
-    public double speed = 3.0;
-    public int health = 3;
     private final int MAX_ABILITIES = 3;
 
-    public Player(int x, int y, int width, int height) {
-        super(x, y, width, height, 3, 3.0);
+    // Constructor
+    
+    public Player(int x, int y, int width, int height, int health, int speed) {
+        super(x, y, width, height, health, speed);
     }
 
     // Methods
     public void pickUpAbility(Ability ability) {
-        // if (abilities.size() < MAX_ABILITIES && !(ability instanceof HealingPotion)) {
-        //     abilities.add(ability);
-        // }
         if (abilities.size() < MAX_ABILITIES) {
             abilities.add(ability);
         }
@@ -32,7 +31,7 @@ public class Player extends Entity {
     }
 
     public void heal(int healingPoints) {
-        setHealth(getHealth() + healingPoints);
+        this.health += healingPoints;
         System.out.println("New health: " + this.health);
     }
     

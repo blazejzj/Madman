@@ -1,4 +1,5 @@
 package Game.Main;
+
 import Game.Abilities.Ability;
 import Game.Abilities.Freeze;
 import Game.Entities.Enemy;
@@ -22,19 +23,14 @@ import java.awt.image.BufferedImage;
 public class GamePanel extends JPanel implements KeyListener {
 
     // CONSTANTS
-    private Player character;
-    private boolean playerHit = false;
+
     private static final long playerHitDuration = 3000;
-    private long playerHitDurationStartTime  = 0;
     private static final long SHOTDELAY = 300;
     private static final int FPS = 144;
     private static final long ABILITY_COOLDOWN_DURATION = 5000;
-
-
-    // Cheats
-    private boolean godMode = false;
-    private boolean bombaDropped = false;
-    private boolean debugMode = true;
+    private static final int MAP_WIDTH = 1000;
+    private static final int MAP_HEIGHT = 800;
+    private static final int MAP_TILE_SIZE = 50;
 
     // Image paths
     private static final String CHARACTER_IMAGE_PATH = "src/mapLayout/char7.png";
@@ -44,6 +40,11 @@ public class GamePanel extends JPanel implements KeyListener {
     private static final String ENEMYTIERTHREE_IMAGE_PATH = "src/mapLayout/ghost2.png";
     private static final String freezeNOBG_IMAGE_PATH = "src/mapLayout/freezeNoBG.png";
     private static final String healingPotion_IMAGE_PATH = "src/MapLayout/healingPotionNoBG.png";
+
+    // Cheats
+    private boolean godMode = false;
+    private boolean bombaDropped = false;
+    private boolean debugMode = true;
 
 
     // Game state variables
@@ -56,14 +57,14 @@ public class GamePanel extends JPanel implements KeyListener {
     private ArrayList<Collectible> collectibles = new ArrayList<>();
     private long lastShotTime = 0;
     private int currentLevel, totalEnemiesToSpawn, enemiesSpawnedSoFar;
-    private static final int mapWidth = 1000;
-    private static final int mapHeight = 800;
-    private int tileSize = 50;
     private BufferedImage characterImage, projectileImage, enemyTierOneImage, enemyTierTwoImage, enemyTierThreeImage, abilityFreezeImage, collectibleHealingPotion;
     private ArrayList<Enemy> enemies;
     private Random rand;
     private GameMap gameMap;
     private long[] abilityCooldowns = new long[3];
+    private Player character;
+    private boolean playerHit = false;
+    private long playerHitDurationStartTime  = 0;
 
     // Abilities active
     boolean isAbilityActive = false;
@@ -76,12 +77,12 @@ public class GamePanel extends JPanel implements KeyListener {
     public GamePanel() {
         // Initialize character in position x, y with size of w, h
         // Initialization of everything
-        character = new Player(300, 400, 70, 70);
+        character = new Player(300, 400, 70, 70, 3, 3);
         projectiles = new ArrayList<>();
         enemies = new ArrayList<>();
         rand = new Random();
         lastShotTime = 0;
-        gameMap = new GameMap(mapWidth, mapHeight, tileSize);
+        gameMap = new GameMap(MAP_WIDTH, MAP_HEIGHT, MAP_TILE_SIZE);
 
 
         // Beginning
@@ -165,26 +166,24 @@ public class GamePanel extends JPanel implements KeyListener {
             bombaDropped = false;
         }
 
-        
-
     }
 
     private void spawnHandleAbilities() {
         // Add a random chance for an ability to appear
-        if (Math.random() < 0.01 && !enemies.isEmpty()) {
-            int playableWidth = gameMap.getMapWidth() - tileSize * 2; // Subtract wall thickness from both sides
-            int playableHeight = gameMap.getMapHeight() - tileSize * 2; // Subtract wall thickness from top and bottom
+        if (Math.random() < 0.00008 && !enemies.isEmpty()) {
+            int playableWidth = gameMap.getMapWidth() - MAP_TILE_SIZE * 2; // Subtract wall thickness from both sides
+            int playableHeight = gameMap.getMapHeight() - MAP_TILE_SIZE * 2; // Subtract wall thickness from top and bottom
     
             // Adjust for ability size to ensure it spawns fully within the playable area
             playableWidth -= 40; // Subtract the width of the ability
             playableHeight -= 40; // Subtract the height of the ability
     
-            int x = tileSize + (int) (Math.random() * playableWidth);
-            int y = tileSize + (int) (Math.random() * playableHeight);
+            int x = MAP_TILE_SIZE + (int) (Math.random() * playableWidth);
+            int y = MAP_TILE_SIZE + (int) (Math.random() * playableHeight);
     
 
-            // Randomly choose spawned ability
-            int abilityType = (int) (Math.random() * 2); // Either 0 or 1
+            // // Randomly choose spawned ability
+            // int abilityType = (int) (Math.random() * 2); // Either 0 or 1
 
             // Ability newAbility;
             // if (abilityType == 0) {
@@ -213,9 +212,17 @@ public class GamePanel extends JPanel implements KeyListener {
         int potionHealPoints = 3;
 
         // Spawn chances + Cant spawn when enemies are not on map
-        if (Math.random() < 0.01 && !enemies.isEmpty()) {
-            int x = rand.nextInt(mapWidth - width);
-            int y = rand.nextInt(mapHeight - height);
+        if (Math.random() < 0.00008 && !enemies.isEmpty()) {
+            
+            int playableWidth = gameMap.getMapWidth() - MAP_TILE_SIZE * 2; // Subtract wall thickness from both sides
+            int playableHeight = gameMap.getMapHeight() - MAP_TILE_SIZE * 2; // Subtract wall thickness from top and bottom
+    
+            // Adjust for ability size to ensure it spawns fully within the playable area
+            playableWidth -= 40; // Subtract the width of the ability
+            playableHeight -= 40; // Subtract the height of the ability
+    
+            int x = MAP_TILE_SIZE + (int) (Math.random() * playableWidth);
+            int y = MAP_TILE_SIZE + (int) (Math.random() * playableHeight);
 
             Collectible healingPotion = new HealthPotion(x, y, width, height, potionHealPoints);
             collectibles.add(healingPotion);
@@ -315,6 +322,7 @@ public class GamePanel extends JPanel implements KeyListener {
             walkedThroughDoor = true;
             currentLevel++;
             abilities.clear();
+            collectibles.clear();
             spawnEnemiesForLevel();
         }
     }
@@ -499,20 +507,20 @@ public class GamePanel extends JPanel implements KeyListener {
         int borderChoice = rand.nextInt(4);
         switch (borderChoice) {
             case 0: // Top
-                x = rand.nextInt(mapWidth - 20);
+                x = rand.nextInt(MAP_WIDTH - 20);
                 y = rand.nextInt(borderSize);
                 break;
             case 1: // Bottom
-                x = rand.nextInt(mapWidth - 20);
-                y = mapHeight - borderSize + rand.nextInt(borderSize);
+                x = rand.nextInt(MAP_WIDTH - 20);
+                y = MAP_HEIGHT - borderSize + rand.nextInt(borderSize);
                 break;
             case 2: // Left
                 x = rand.nextInt(borderSize);
-                y = rand.nextInt(mapHeight + 10);
+                y = rand.nextInt(MAP_HEIGHT + 10);
                 break;
             case 3: // Right
-                x = mapWidth - borderSize + rand.nextInt(borderSize);
-                y = rand.nextInt(mapHeight + 10);
+                x = MAP_WIDTH - borderSize + rand.nextInt(borderSize);
+                y = rand.nextInt(MAP_HEIGHT + 10);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + borderChoice);
@@ -627,9 +635,6 @@ public class GamePanel extends JPanel implements KeyListener {
             if (ability instanceof Freeze) {
                 g.drawImage(abilityFreezeImage, ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight(), this);
             }
-            // else if (ability instanceof HealingPotion) {
-            //     g.drawImage(abilityHealingPotionImage, ability.getX(), ability.getY(), ability.getWidth(), ability.getHeight(), this);
-            // }
             else {
                 // Throwback 
                 g.setColor(Color.GREEN); // Set the color to lime
@@ -647,7 +652,7 @@ public class GamePanel extends JPanel implements KeyListener {
             else {
                 // Throwback
                 g.setColor(Color.GREEN);
-                
+                g.fillRect(collectible.getX(), collectible.getY(), collectible.getWidth(), collectible.getHeight());
             }
         }
     }

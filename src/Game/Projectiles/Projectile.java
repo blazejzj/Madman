@@ -3,15 +3,28 @@ package Game.Projectiles;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
+
 public class Projectile {
+
+    // Instance variables
+
     public Rectangle bounds;
     public int speed = 10;
     private String direction;
+
+    // Constructor
 
     public  Projectile(int x, int y, String direction) {
         this.direction = direction;
         bounds = new Rectangle(x, y, 40, 40);
     }
+
+    // Getters
+
+    public Rectangle getBounds() {return bounds;}
+
+    // Methods
+
     public void move() {
         switch (direction) {
             case "UP":
@@ -28,10 +41,7 @@ public class Projectile {
                 break;
         }
     }
-
-    public Rectangle getBounds() {
-        return bounds;
-    }
+    
     public void draw(Graphics g, BufferedImage image) {
         if (image != null) {
             g.drawImage(image, bounds.x, bounds.y, bounds.width, bounds.height, null);
