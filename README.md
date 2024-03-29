@@ -8,7 +8,6 @@ Explore Ever-Changing Dungeons: No two journeys are the same. Discover new layou
 Battle Diverse Enemies: From sneaky ghosts to powerful tiered adversaries, there's always something new to fight.
 Unlock Abilities: Gain unique abilities and power-ups that make your journey easier and more fun.
 Progress and Power Up: Defeat enemies to become stronger and tackle tougher challenges.
-Extra Fun with Cheats: Experiment with different modes, like god mode or level skips, to mix things up.
 
 ## How to Play
 
