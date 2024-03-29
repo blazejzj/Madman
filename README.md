@@ -40,8 +40,8 @@ Progress and Power Up: Defeat enemies to become stronger and tackle tougher chal
     <li><del>It shouldn't be possible using many abilities at once. We want to limit it to 1; Right now you can press multiple indexes; start multiple abilities which kind of bug the game out.</del></li>
     <li><del>The HealthPotion collectible upon picking up doesn't increase players health; crashed the game</del></li>
     <li><del>Slight variation in enemies/player movement when going diagonally.</del></li>
+    <li><del>Enemies walk occasionally faster than supposed to; even though enemies speed stays the same; change speed value to 0 upon enemy collision<del></li>
     <li>The doors leading to the next level are currently not working as intended. I want them to spawn parallel to the next walked-through door. (Mirror effect)</li>
-    <li>Enemies walk occasionally faster than supposed to; even though enemies speed stays the same; change speed value to 0 upon enemy collision</li>
     <li>++ unknown</li>
 </ul>
 

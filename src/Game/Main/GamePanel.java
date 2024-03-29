@@ -8,6 +8,7 @@ import Game.Entities.EnemyTierTwo;
 import Game.Entities.Player;
 import Game.Projectiles.Projectile;
 import Game.Collectible.*;
+import Game.ItemShop.*;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -65,6 +66,8 @@ public class GamePanel extends JPanel implements KeyListener {
     private Player character;
     private boolean playerHit = false;
     private long playerHitDurationStartTime  = 0;
+    private int playerPointsGathered = 0;
+    private ItemShop itemShop = new ItemShop();
 
     // Abilities active
     boolean isAbilityActive = false;
@@ -96,6 +99,11 @@ public class GamePanel extends JPanel implements KeyListener {
 
         // Timers
         startGameTimer();
+
+        itemShop = new ItemShop();
+        add(itemShop);
+        itemShop.setBounds(new Rectangle(100, 100, 400, 300));
+        itemShop.setVisible(false);
     }
 
     private void loadImages() {
@@ -382,7 +390,24 @@ public class GamePanel extends JPanel implements KeyListener {
                     useAbility(2, currentTime);
                 }
                 break;
+            case KeyEvent.VK_I:
+                System.out.println("pressed i");
+                if (enemies.isEmpty()) {
+                    openShop();
+                } 
+                else {
+                    JOptionPane.showMessageDialog(this, "Defeat all enemies before accessing the shop!");
+                }
+                break;
         }
+    }
+
+    private void openShop() {
+        SwingUtilities.invokeLater(() -> {
+            itemShop.setPlayerPoints(playerPointsGathered);
+            itemShop.displayItems();
+            itemShop.toggleVisibility();
+        });
     }
 
     private boolean isAbilityReady(int abilityIndex, long currentTime) {
@@ -432,9 +457,20 @@ public class GamePanel extends JPanel implements KeyListener {
                 if (projectile.getBounds().intersects(enemy.getBounds())) {
                     projectileIterator.remove(); // Remove the projectile
 
+                    // Enemy gets hit take x damage per hit
                     if (enemy.takeDamage(1)) {
+
+                        // Give player points depended on the tier of the enemy
+                        if (enemy instanceof EnemyTierTwo) {
+                            playerPointsGathered += 2;
+                        }
+                        else if (enemy instanceof EnemyTierThree) {
+                            playerPointsGathered += 4;
+                        }
+                        else {
+                            playerPointsGathered += 1;
+                        }
                         enemyIterator.remove();
-                        // Update stuff here when enemy dies
                     }
                     break;
                 }
@@ -667,10 +703,12 @@ public class GamePanel extends JPanel implements KeyListener {
             g.drawString("Health: " + character.getHealth(), 10, 80);
 
             // Display information about held abilities (Eventually adding a nicer GUI)
-
             g.drawString("Ability 1: " + getAbilityNameByIndex(0), 10, 100);
             g.drawString("Ability 2: " + getAbilityNameByIndex(1), 10, 120);
             g.drawString("Ability 3: " + getAbilityNameByIndex(2), 10, 140);
+
+            // Display points gathered by killing enemies
+            g.drawString("Points gathered: " + playerPointsGathered, 10, 160);
         }
     }
 
