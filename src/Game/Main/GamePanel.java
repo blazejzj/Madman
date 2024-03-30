@@ -8,7 +8,6 @@ import Game.Entities.EnemyTierTwo;
 import Game.Entities.Player;
 import Game.Projectiles.Projectile;
 import Game.Collectible.*;
-import Game.ItemShop.*;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -67,10 +66,10 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean playerHit = false;
     private long playerHitDurationStartTime  = 0;
     private int playerPointsGathered = 0;
-    private ItemShop itemShop = new ItemShop();
 
     // Abilities active
     boolean isAbilityActive = false;
+    boolean boughtFreeze = false;
 
     // METHODS
     public void startGame() {
@@ -100,10 +99,6 @@ public class GamePanel extends JPanel implements KeyListener {
         // Timers
         startGameTimer();
 
-        itemShop = new ItemShop();
-        add(itemShop);
-        itemShop.setBounds(new Rectangle(100, 100, 400, 300));
-        itemShop.setVisible(false);
     }
 
     private void loadImages() {
@@ -390,24 +385,7 @@ public class GamePanel extends JPanel implements KeyListener {
                     useAbility(2, currentTime);
                 }
                 break;
-            case KeyEvent.VK_I:
-                System.out.println("pressed i");
-                if (enemies.isEmpty()) {
-                    openShop();
-                } 
-                else {
-                    JOptionPane.showMessageDialog(this, "Defeat all enemies before accessing the shop!");
-                }
-                break;
         }
-    }
-
-    private void openShop() {
-        SwingUtilities.invokeLater(() -> {
-            itemShop.setPlayerPoints(playerPointsGathered);
-            itemShop.displayItems();
-            itemShop.toggleVisibility();
-        });
     }
 
     private boolean isAbilityReady(int abilityIndex, long currentTime) {

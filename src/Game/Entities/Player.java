@@ -34,6 +34,9 @@ public class Player extends Entity {
         this.health += healingPoints;
         System.out.println("New health: " + this.health);
     }
+
+    public void addFreezeCharge() {
+    }
     
 
 }

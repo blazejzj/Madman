@@ -18,9 +18,8 @@ public class Freeze extends Ability {
        super(x, y, width, height);
        this.enemies = enemies;
    }
-
-   // Methods
    
+   // Methods
    @Override
    public void apply(Runnable callback) {
        synchronized (enemies) { 
