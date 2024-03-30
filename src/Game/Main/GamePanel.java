@@ -68,8 +68,7 @@ public class GamePanel extends JPanel implements KeyListener {
     private int playerPointsGathered = 0;
 
     // Abilities active
-    boolean isAbilityActive = false;
-    boolean boughtFreeze = false;
+    public boolean isAbilityActive = false;
 
     // METHODS
     public void startGame() {
