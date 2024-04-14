@@ -171,6 +171,7 @@ public class GamePanel extends JPanel implements KeyListener {
     }
 
     private void spawnHandleAbilities() {
+        
         // Add a random chance for an ability to appear
         if (Math.random() < 0.00008 && !enemies.isEmpty()) {
             int playableWidth = gameMap.getMapWidth() - MAP_TILE_SIZE * 2; // Subtract wall thickness from both sides
@@ -212,9 +213,10 @@ public class GamePanel extends JPanel implements KeyListener {
         int width = 30;
         int height = 30;
         int potionHealPoints = 3;
+        double roundExtraSpawnableChance = (currentLevel / 5);
 
         // Spawn chances + Cant spawn when enemies are not on map
-        if (Math.random() < 0.00008 && !enemies.isEmpty()) {
+        if (Math.random() + roundExtraSpawnableChance < 0.00008 && !enemies.isEmpty()) {
             
             int playableWidth = gameMap.getMapWidth() - MAP_TILE_SIZE * 2; // Subtract wall thickness from both sides
             int playableHeight = gameMap.getMapHeight() - MAP_TILE_SIZE * 2; // Subtract wall thickness from top and bottom
